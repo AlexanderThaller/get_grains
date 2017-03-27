@@ -1,0 +1,49 @@
+name: "get_grains"
+author: "Alexander Thaller <alexander.thaller@trivago.com>"
+about: "Get the grains for all the minions connected to the saltmaster and save them in JSON files"
+global_settings:
+  - "ColoredHelp"
+  - "GlobalVersion"
+  - "NextLineHelp"
+  - "VersionlessSubcommands"
+settings:
+  - "SubcommandRequired"
+args:
+    - loglevel:
+        help: "Loglevel to run under"
+        long: "loglevel"
+        short: "l"
+        takes_value: true
+        default_value: "info"
+        value_name: "level"
+        possible_values: [ "trace", "debug", "info", "warn", "error" ]
+        global: true
+    - grainsdir:
+        help: "folder to save the grainfiles in"
+        long: "grainsdir"
+        short: "D"
+        takes_value: true
+        default_value: "grains"
+        global: true
+subcommands:
+  - run_salt:
+      about: run salt command to get grains and parse that
+      args:
+        - salt_target:
+            help: "Which minions to target with salt"
+            long: "target"
+            short: "t"
+            takes_value: true
+            value_name: "target"
+            default_value: "*"
+            required: true
+  - read_file:
+      about: read salt grains from a file
+      args:
+        - input:
+            help: "Path to the input file. If input is '-' read from stdin"
+            long: "input"
+            short: "i"
+            takes_value: true
+            value_name: "path"
+            required: true

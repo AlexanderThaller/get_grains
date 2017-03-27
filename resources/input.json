@@ -1,0 +1,267 @@
+Minion did_not_respond_minion did not respond. No job will be sent.
+Minion did_not_respond_minion2 did not respond. No job will be sent.
+Minion did_not_respond_minion3 did not respond. No job will be sent.
+{
+  "failed_ret_empty": {
+    "jid": "20170314163920706889",
+    "out": "nested",
+    "ret": {},
+    "retcode": 0
+  },
+  "failed_ret_number": {
+    "jid": "20170314163920706889",
+    "out": "nested",
+    "ret": 0,
+    "retcode": 0
+  },
+  "good_host": {
+    "jid": "20170314144348023008",
+    "ret": {
+      "SSDs": [],
+      "admin_network_ip": "",
+      "backbone_interface": "eth1",
+      "backbone_ip": "10.2.3.240",
+      "biosreleasedate": "07/02/2013",
+      "biosversion": "P68",
+      "cpu_flags": [
+        "fpu",
+        "vme",
+        "de",
+        "pse",
+        "tsc",
+        "msr",
+        "pae",
+        "mce",
+        "cx8",
+        "apic",
+        "sep",
+        "mtrr",
+        "pge",
+        "mca",
+        "cmov",
+        "pat",
+        "pse36",
+        "clflush",
+        "dts",
+        "acpi",
+        "mmx",
+        "fxsr",
+        "sse",
+        "sse2",
+        "ss",
+        "ht",
+        "tm",
+        "pbe",
+        "syscall",
+        "nx",
+        "pdpe1gb",
+        "rdtscp",
+        "lm",
+        "constant_tsc",
+        "arch_perfmon",
+        "pebs",
+        "bts",
+        "rep_good",
+        "nopl",
+        "xtopology",
+        "nonstop_tsc",
+        "aperfmperf",
+        "pni",
+        "pclmulqdq",
+        "dtes64",
+        "monitor",
+        "ds_cpl",
+        "vmx",
+        "smx",
+        "est",
+        "tm2",
+        "ssse3",
+        "cx16",
+        "xtpr",
+        "pdcm",
+        "pcid",
+        "dca",
+        "sse4_1",
+        "sse4_2",
+        "popcnt",
+        "aes",
+        "lahf_lm",
+        "ida",
+        "arat",
+        "epb",
+        "dtherm",
+        "tpr_shadow",
+        "vnmi",
+        "flexpriority",
+        "ept",
+        "vpid"
+      ],
+      "cpu_model": "Intel(R) Xeon(R) CPU           X5650  @ 2.67GHz",
+      "cpuarch": "x86_64",
+      "domain": "trivago.com",
+      "environment": "prod",
+      "fqdn": "zk-dus0.trivago.com",
+      "fqdn_ip4": [
+        "10.1.3.240"
+      ],
+      "fqdn_ip6": [],
+      "frontend_interface": "",
+      "frontend_ip": "",
+      "gpus": [
+        {
+          "model": "ES1000",
+          "vendor": "ati"
+        }
+      ],
+      "host": "zk-dus0",
+      "hwaddr_interfaces": {
+        "eth0": "d8:9d:67:78:bf:08",
+        "eth1": "d8:9d:67:78:bf:0a",
+        "eth2": "d8:9d:67:78:bf:0c",
+        "eth3": "d8:9d:67:78:bf:0e",
+        "lo": "00:00:00:00:00:00",
+        "vlan50": "d8:9d:67:78:bf:08"
+      },
+      "id": "good_host",
+      "init": "sysvinit",
+      "ip4_interfaces": {
+        "eth0": [
+          "10.1.3.240"
+        ],
+        "eth1": [
+          "10.2.3.240"
+        ],
+        "eth2": [],
+        "eth3": [],
+        "lo": [
+          "127.0.0.1"
+        ],
+        "vlan50": [
+          "10.1.16.240"
+        ]
+      },
+      "ip6_interfaces": {
+        "eth0": [
+          "fe80::da9d:67ff:fe78:bf08"
+        ],
+        "eth1": [
+          "fe80::da9d:67ff:fe78:bf0a"
+        ],
+        "eth2": [],
+        "eth3": [],
+        "lo": [
+          "::1"
+        ],
+        "vlan50": [
+          "fe80::da9d:67ff:fe78:bf08"
+        ]
+      },
+      "ip_interfaces": {
+        "eth0": [
+          "10.1.3.240",
+          "fe80::da9d:67ff:fe78:bf08"
+        ],
+        "eth1": [
+          "10.2.3.240",
+          "fe80::da9d:67ff:fe78:bf0a"
+        ],
+        "eth2": [],
+        "eth3": [],
+        "lo": [
+          "127.0.0.1",
+          "::1"
+        ],
+        "vlan50": [
+          "10.1.16.240",
+          "fe80::da9d:67ff:fe78:bf08"
+        ]
+      },
+      "ipv4": [
+        "10.1.16.240",
+        "10.1.3.240",
+        "10.2.3.240",
+        "127.0.0.1"
+      ],
+      "ipv6": [
+        "::1",
+        "fe80::da9d:67ff:fe78:bf08",
+        "fe80::da9d:67ff:fe78:bf0a"
+      ],
+      "kernel": "Linux",
+      "kernelrelease": "3.2.0-4-amd64",
+      "ldap_installed": false,
+      "locale_info": {
+        "defaultencoding": "unknown",
+        "defaultlanguage": "unknown",
+        "detectedencoding": "ANSI_X3.4-1968"
+      },
+      "localhost": "zk-dus0",
+      "lsb_distrib_codename": "wheezy",
+      "lsb_distrib_description": "Debian GNU/Linux 7.7 (wheezy)",
+      "lsb_distrib_id": "Debian",
+      "lsb_distrib_os": "GNU/Linux",
+      "lsb_distrib_release": "7.7",
+      "machine_id": "83983eff80d0489d05138d2c5583ff0d",
+      "manufacturer": "HP",
+      "master": "salt",
+      "mem_total": 24153,
+      "nodename": "zk-dus0",
+      "num_cpus": 24,
+      "num_gpus": 1,
+      "os": "Debian",
+      "os_family": "Debian",
+      "osarch": "amd64",
+      "oscodename": "wheezy",
+      "osfinger": "Debian-7",
+      "osfullname": "Debian",
+      "osmajorrelease": "7",
+      "osrelease": "7.7",
+      "osrelease_info": [
+        7,
+        7
+      ],
+      "path": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "productname": "ProLiant DL360 G7",
+      "ps": "ps -efHww",
+      "pythonexecutable": "/usr/bin/python",
+      "pythonpath": [
+        "/usr/bin",
+        "/usr/lib/python2.7",
+        "/usr/lib/python2.7/plat-linux2",
+        "/usr/lib/python2.7/lib-tk",
+        "/usr/lib/python2.7/lib-old",
+        "/usr/lib/python2.7/lib-dynload",
+        "/usr/local/lib/python2.7/dist-packages",
+        "/usr/lib/python2.7/dist-packages",
+        "/usr/lib/pymodules/python2.7"
+      ],
+      "pythonversion": [
+        2,
+        7,
+        3,
+        "final",
+        0
+      ],
+      "realm": "dus",
+      "roles": [
+        "server.host",
+        "server.good_host"
+      ],
+      "saltmaster": "adm6-dus",
+      "saltpath": "/usr/lib/python2.7/dist-packages/salt",
+      "saltversion": "2015.5.3",
+      "saltversioninfo": [
+        2015,
+        5,
+        3,
+        0
+      ],
+      "serialnumber": "CZ3441DR6K",
+      "server_id": 1210884599,
+      "shell": "/bin/bash",
+      "virtual": "physical",
+      "zmqversion": "3.2.3"
+    },
+    "retcode": 0
+  }
+}

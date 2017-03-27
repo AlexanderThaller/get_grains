@@ -1,0 +1,266 @@
+{
+    "thaller-laptop": {
+        "kernel": "Linux", 
+        "domain": "", 
+        "uid": 0, 
+        "zmqversion": "4.2.0", 
+        "kernelrelease": "4.9.17-1-lts", 
+        "pythonpath": [
+            "/usr/bin", 
+            "/usr/lib/python27.zip", 
+            "/usr/lib/python2.7", 
+            "/usr/lib/python2.7/plat-linux2", 
+            "/usr/lib/python2.7/lib-tk", 
+            "/usr/lib/python2.7/lib-old", 
+            "/usr/lib/python2.7/lib-dynload", 
+            "/usr/lib/python2.7/site-packages", 
+            "/usr/lib/python2.7/site-packages/gtk-2.0"
+        ], 
+        "pid": 664, 
+        "ip_interfaces": {
+            "lo": [
+                "127.0.0.1", 
+                "::1"
+            ], 
+            "docker0": [
+                "172.17.0.1"
+            ], 
+            "enp0s25": [
+                "192.168.37.184", 
+                "2001:920:1846:1dc0:e2ad:a6d0:8d96:ac82", 
+                "fe80::60c:2bc7:c17f:308d"
+            ], 
+            "wlp3s0": []
+        }, 
+        "groupname": "root", 
+        "shell": "/bin/sh", 
+        "mem_total": 11720, 
+        "saltversioninfo": [
+            2016, 
+            11, 
+            3, 
+            0
+        ], 
+        "SSDs": [
+            "dm-0", 
+            "sda"
+        ], 
+        "id": "thaller-laptop", 
+        "osrelease": "", 
+        "ps": "ps -efH", 
+        "server_id": 188051547, 
+        "retcode": 0, 
+        "ip6_interfaces": {
+            "lo": [
+                "::1"
+            ], 
+            "docker0": [], 
+            "enp0s25": [
+                "2001:920:1846:1dc0:e2ad:a6d0:8d96:ac82", 
+                "fe80::60c:2bc7:c17f:308d"
+            ], 
+            "wlp3s0": []
+        }, 
+        "num_cpus": 4, 
+        "hwaddr_interfaces": {
+            "lo": "00:00:00:00:00:00", 
+            "docker0": "02:42:ae:a2:5e:59", 
+            "enp0s25": "50:7b:9d:4a:95:12", 
+            "wlp3s0": "92:62:b9:c5:4a:22"
+        }, 
+        "init": "systemd", 
+        "ip4_interfaces": {
+            "lo": [
+                "127.0.0.1"
+            ], 
+            "docker0": [
+                "172.17.0.1"
+            ], 
+            "enp0s25": [
+                "192.168.37.184"
+            ], 
+            "wlp3s0": []
+        }, 
+        "osfullname": "Arch Linux", 
+        "gid": 0, 
+        "master": "localhost", 
+        "ipv4": [
+            "127.0.0.1", 
+            "172.17.0.1", 
+            "192.168.37.184"
+        ], 
+        "dns": {
+            "domain": "", 
+            "sortlist": [], 
+            "nameservers": [
+                "192.168.32.7", 
+                "192.168.32.8", 
+                "2001:920:1846:1dc0::10", 
+                "2001:920:1846:1dc0::11"
+            ], 
+            "ip4_nameservers": [
+                "192.168.32.7", 
+                "192.168.32.8"
+            ], 
+            "search": [
+                "trivago.local"
+            ], 
+            "ip6_nameservers": [
+                "2001:920:1846:1dc0::10", 
+                "2001:920:1846:1dc0::11"
+            ], 
+            "options": []
+        }, 
+        "ipv6": [
+            "::1", 
+            "2001:920:1846:1dc0:e2ad:a6d0:8d96:ac82", 
+            "fe80::60c:2bc7:c17f:308d"
+        ], 
+        "role": "workstation_laptop_ultrabook", 
+        "cpu_flags": [
+            "fpu", 
+            "vme", 
+            "de", 
+            "pse", 
+            "tsc", 
+            "msr", 
+            "pae", 
+            "mce", 
+            "cx8", 
+            "apic", 
+            "sep", 
+            "mtrr", 
+            "pge", 
+            "mca", 
+            "cmov", 
+            "pat", 
+            "pse36", 
+            "clflush", 
+            "dts", 
+            "acpi", 
+            "mmx", 
+            "fxsr", 
+            "sse", 
+            "sse2", 
+            "ss", 
+            "ht", 
+            "tm", 
+            "pbe", 
+            "syscall", 
+            "nx", 
+            "pdpe1gb", 
+            "rdtscp", 
+            "lm", 
+            "constant_tsc", 
+            "arch_perfmon", 
+            "pebs", 
+            "bts", 
+            "rep_good", 
+            "nopl", 
+            "xtopology", 
+            "nonstop_tsc", 
+            "aperfmperf", 
+            "eagerfpu", 
+            "pni", 
+            "pclmulqdq", 
+            "dtes64", 
+            "monitor", 
+            "ds_cpl", 
+            "vmx", 
+            "est", 
+            "tm2", 
+            "ssse3", 
+            "sdbg", 
+            "fma", 
+            "cx16", 
+            "xtpr", 
+            "pdcm", 
+            "pcid", 
+            "sse4_1", 
+            "sse4_2", 
+            "x2apic", 
+            "movbe", 
+            "popcnt", 
+            "tsc_deadline_timer", 
+            "aes", 
+            "xsave", 
+            "avx", 
+            "f16c", 
+            "rdrand", 
+            "lahf_lm", 
+            "abm", 
+            "3dnowprefetch", 
+            "epb", 
+            "intel_pt", 
+            "tpr_shadow", 
+            "vnmi", 
+            "flexpriority", 
+            "ept", 
+            "vpid", 
+            "fsgsbase", 
+            "tsc_adjust", 
+            "bmi1", 
+            "avx2", 
+            "smep", 
+            "bmi2", 
+            "erms", 
+            "invpcid", 
+            "rdseed", 
+            "adx", 
+            "smap", 
+            "xsaveopt", 
+            "dtherm", 
+            "ida", 
+            "arat", 
+            "pln", 
+            "pts"
+        ], 
+        "localhost": "thaller-laptop", 
+        "lsb_distrib_id": "Arch Linux", 
+        "username": "root", 
+        "fqdn_ip4": [], 
+        "fqdn_ip6": [], 
+        "nodename": "thaller-laptop", 
+        "saltversion": "2016.11.3", 
+        "systemd": {
+            "version": "232", 
+            "features": "+PAM -AUDIT -SELINUX -IMA -APPARMOR +SMACK -SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT +GNUTLS +ACL +XZ +LZ4 +SECCOMP +BLKID +ELFUTILS +KMOD +IDN"
+        }, 
+        "saltpath": "/usr/lib/python2.7/site-packages/salt", 
+        "host": "thaller-laptop", 
+        "os_family": "Arch", 
+        "oscodename": "Arch Linux", 
+        "gpus": [
+            {
+                "model": "HD Graphics 5500", 
+                "vendor": "intel"
+            }
+        ], 
+        "pythonversion": [
+            2, 
+            7, 
+            13, 
+            "final", 
+            0
+        ], 
+        "num_gpus": 1, 
+        "virtual": "physical", 
+        "disks": [
+            "sdb"
+        ], 
+        "cpu_model": "Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz", 
+        "fqdn": "thaller-laptop", 
+        "pythonexecutable": "/usr/bin/python2", 
+        "osarch": "x86_64", 
+        "cpuarch": "x86_64", 
+        "lsb_distrib_codename": "Arch Linux", 
+        "locale_info": {
+            "detectedencoding": "UTF-8", 
+            "defaultlanguage": "en_US", 
+            "defaultencoding": "UTF-8"
+        }, 
+        "path": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/sbin", 
+        "machine_id": "432f09e3293d44ed83cf34280e7b042c", 
+        "os": "Arch"
+    }
+}
