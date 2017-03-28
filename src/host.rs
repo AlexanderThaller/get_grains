@@ -7,6 +7,12 @@ pub struct Host {
     pub status: HostStatus,
 }
 
+impl Host {
+    pub fn is_success(&self) -> bool {
+        self.status.is_success()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum HostStatus {
     Uninitialized,
@@ -23,5 +29,11 @@ pub enum HostStatus {
 impl Default for HostStatus {
     fn default() -> HostStatus {
         HostStatus::Uninitialized
+    }
+}
+
+impl HostStatus {
+    pub fn is_success(&self) -> bool {
+        self == &HostStatus::Success
     }
 }

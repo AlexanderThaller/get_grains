@@ -105,7 +105,7 @@ fn run_run_salt(args: &Args) -> Result<()> {
     debug!("save_output: {:?}", save_output);
 
     let minions_data =
-        get_minions_data_from_salt(salt_target).chain_err(|| "can not get minions data from salt")?;
+        get_minions_data_from_salt(salt_target, 120).chain_err(|| "can not get minions data from salt")?;
 
     if let Some(path) = save_output {
         let mut file = File::create(path.to_str().ok_or("can not convert path path to str")?)
@@ -114,9 +114,34 @@ fn run_run_salt(args: &Args) -> Result<()> {
             .chain_err(|| "can not write minions_data to path file")?;
     }
 
-    let minions = parse_minions_from_minions_data(minions_data).chain_err(|| "can not parse minions from minions data")?;
+    let mut minions = parse_minions_from_minions_data(&minions_data).chain_err(|| "can not parse minions from minions data")?;
 
-    serialize_minions(minions, grainsdir).chain_err(|| "can not serialize minions to json files")?;
+    for (hostid, host) in minions.clone() {
+        if host.is_success() {
+            continue;
+        }
+
+        for retry_count in {
+            1..5
+        } {
+            debug!("trying again to get grains for {} (retry {})",
+                   hostid,
+                   retry_count);
+            let minion_data = match get_minions_data_from_salt(hostid.as_str(), 30) {
+                Ok(m) => m,
+                Err(_) => continue,
+            };
+
+            let minion = parse_minions_from_minions_data(&minion_data).chain_err(|| "can not parse minion from minion data")?;
+
+            let new_host = minion.values().next().unwrap();
+            if host.is_success() {
+                minions.insert(hostid.clone(), new_host.clone());
+            }
+        }
+    }
+
+    serialize_minions(minions, &grainsdir).chain_err(|| "can not serialize minions to json files")?;
 
     Ok(())
 }
@@ -146,16 +171,20 @@ fn run_read_file(args: &Args) -> Result<()> {
         }
     };
 
-    let minions = parse_minions_from_minions_data(minions_data).chain_err(|| "can not parse minions from minions data")?;
+    let minions = parse_minions_from_minions_data(&minions_data).chain_err(|| "can not parse minions from minions data")?;
 
-    serialize_minions(minions, grainsdir).chain_err(|| "can not serialize minions to json files")?;
+    serialize_minions(minions, &grainsdir).chain_err(|| "can not serialize minions to json files")?;
 
     Ok(())
 }
 
-fn get_minions_data_from_salt(minions: &str) -> std::result::Result<String, errors::Error> {
-    let command_string = format!("salt '{}' -t 120 -b 10 --out json --static grains.items",
-                                 minions);
+fn get_minions_data_from_salt(
+    minions: &str,
+    timeout: usize
+) -> std::result::Result<String, errors::Error> {
+    let command_string = format!("salt '{}' -t {} -b 10 --out json --static grains.items",
+                                 minions,
+                                 timeout);
 
     debug!("runing salt with command: {}", command_string);
 
@@ -185,7 +214,7 @@ fn get_minions_data_from_salt(minions: &str) -> std::result::Result<String, erro
 }
 
 fn parse_minions_from_minions_data
-    (minions_data: String)
+    (minions_data: &str)
      -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
     let (minions_data, failed_minions) = {
         // match all hosts that have not returned as they are not in the json data
@@ -196,11 +225,11 @@ fn parse_minions_from_minions_data
                 .expect("regex for catching not returned minions is not valid");
 
         let mut no_return = Vec::new();
-        for host in catch_not_returned_minions.captures_iter(minions_data.as_str()) {
+        for host in catch_not_returned_minions.captures_iter(minions_data) {
             no_return.push(host[1].to_string());
         }
 
-        let cleaned_minions_data = catch_not_returned_minions.replace_all(minions_data.as_str(), "")
+        let cleaned_minions_data = catch_not_returned_minions.replace_all(minions_data, "")
             .into_owned();
 
         // clean up hosts that have not returned from the json data
@@ -211,7 +240,7 @@ fn parse_minions_from_minions_data
         serde_json::from_str(minions_data.as_str()).chain_err(|| "can not convert minions data to minions")?;
 
     let mut minions =
-        parse_minions_from_json(value).chain_err(|| "can not convert json value to minions")?;
+        parse_minions_from_json(&value).chain_err(|| "can not convert json value to minions")?;
 
     trace!("failed_minions: {:#?}", failed_minions);
     for minion in failed_minions {
@@ -272,7 +301,7 @@ impl From<u64> for Retcode {
     }
 }
 
-fn parse_minions_from_json(json_value: Value)
+fn parse_minions_from_json(json_value: &Value)
     -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
     let mut minions: DataMap<String, host::Host> = DataMap::default();
 
@@ -369,7 +398,7 @@ fn parse_minions_from_json(json_value: Value)
     Ok(minions)
 }
 
-fn serialize_minions(minions: DataMap<String, host::Host>, grainsdir: PathBuf) -> Result<()> {
+fn serialize_minions(minions: DataMap<String, host::Host>, grainsdir: &PathBuf) -> Result<()> {
     fs::create_dir_all(&grainsdir).chain_err(|| "can not create grainsdir for writing minions json")?;
 
     for (hostid, data) in minions {
