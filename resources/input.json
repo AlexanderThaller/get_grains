@@ -8,6 +8,9 @@ Minion did_not_respond_minion3 did not respond. No job will be sent.
     "ret": {},
     "retcode": 0
   },
+  "failed_ret_empty_2": {
+      "ret": {}
+  },
   "failed_ret_number": {
     "jid": "20170314163920706889",
     "out": "nested",

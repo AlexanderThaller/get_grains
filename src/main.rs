@@ -90,13 +90,29 @@ fn run_run_salt(args: &Args) -> Result<()> {
     trace!("run_run_salt args: {:#?}", args);
 
     let salt_target = args.value_of("salt_target").ok_or("no salt_target given")?;
-    trace!("salt_target: {}", salt_target);
+    debug!("salt_target: {}", salt_target);
+
     let grainsdir: PathBuf = PathBuf::from(args.value_of("grainsdir")
         .ok_or("no graindir given")?);
-    trace!("grainsdir: {:?}", grainsdir);
+    debug!("grainsdir: {:?}", grainsdir);
+
+    let save_output = if args.is_present("save_output") {
+        Some(PathBuf::from(args.value_of("save_output")
+            .ok_or("no save_output given")?))
+    } else {
+        None
+    };
+    debug!("save_output: {:?}", save_output);
 
     let minions_data =
         get_minions_data_from_salt(salt_target).chain_err(|| "can not get minions data from salt")?;
+
+    if let Some(path) = save_output {
+        let mut file = File::create(path.to_str().ok_or("can not convert path path to str")?)
+            .chain_err(|| "can not create file for writing minions_data to save output")?;
+        file.write(minions_data.as_bytes())
+            .chain_err(|| "can not write minions_data to path file")?;
+    }
 
     let minions = parse_minions_from_minions_data(minions_data).chain_err(|| "can not parse minions from minions data")?;
 
@@ -141,6 +157,8 @@ fn get_minions_data_from_salt(minions: &str) -> std::result::Result<String, erro
     let command_string = format!("salt '{}' -t 120 -b 10 --out json --static grains.items",
                                  minions);
 
+    debug!("runing salt with command: {}", command_string);
+
     let mut command = Command::new("sh");
     command.args(&["-c", command_string.as_str()]);
 
@@ -148,6 +166,8 @@ fn get_minions_data_from_salt(minions: &str) -> std::result::Result<String, erro
 
     let output = command.output()
         .chain_err(|| "problem while running salt")?;
+
+    debug!("finished running salt");
 
     if output.status.success() {
         let stdout = from_utf8(output.stdout.as_slice())
@@ -263,12 +283,13 @@ fn parse_minions_from_json(json_value: Value)
 
         let mut host = host::Host { hostname: hostid.clone(), ..host::Host::default() };
 
-        if values.get("jid") == None {
+        if values.get("ret") == None {
             debug!("going the single host path when parsing");
 
             match *values {
                 Value::Object(ref r) => {
                     if r.is_empty() {
+                        debug!("ret value is empty");
                         host.status = host::HostStatus::RetValueObjectIsEmpty;
                         minions.insert(hostid, host);
                         continue;

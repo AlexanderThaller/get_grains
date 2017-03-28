@@ -11,13 +11,13 @@ pub struct Host {
 pub enum HostStatus {
     Uninitialized,
     Success,
-    DidNotRespond,
     NoReturnCode,
     ReturnCodeNotNumber,
     RetValueIsNone,
     RetCodeWasNotNull,
     RetValueNotObject,
     RetValueObjectIsEmpty,
+    DidNotRespond,
 }
 
 impl Default for HostStatus {

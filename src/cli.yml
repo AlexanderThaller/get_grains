@@ -37,6 +37,12 @@ subcommands:
             value_name: "target"
             default_value: "*"
             required: true
+        - save_output:
+            help: "Save output to the given file"
+            long: "save_output"
+            short: "S"
+            takes_value: true
+            value_name: "file"
   - read_file:
       about: read salt grains from a file
       args:
