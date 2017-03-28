@@ -122,7 +122,7 @@ fn run_run_salt(args: &Args) -> Result<()> {
         }
 
         for retry_count in {
-            1..5
+            1..3
         } {
             debug!("trying again to get grains for {} (retry {})",
                    hostid,
