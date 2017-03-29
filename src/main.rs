@@ -230,7 +230,7 @@ fn parse_minions_from_minions_data(minions_data: &str) -> std::result::Result<Da
             data
         };
 
-        let minions_data = {
+        {
             let regex = Regex::new(r"(?m)^minion (\S*) was already deleted from tracker, probably a duplicate key$").chain_err(|| "regex for catching deleted minions is not valid")?;
 
             let mut failed = Vec::new();
@@ -253,9 +253,7 @@ fn parse_minions_from_minions_data(minions_data: &str) -> std::result::Result<Da
             }
 
             data
-        };
-
-        minions_data
+        }
     };
 
     let value: Value = serde_json::from_str(minions_data.as_str()).chain_err(|| "can not convert minions data to minions")?;
