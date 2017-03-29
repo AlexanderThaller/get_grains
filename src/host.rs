@@ -23,6 +23,7 @@ pub enum HostStatus {
     RetCodeWasNotNull,
     RetValueNotObject,
     RetValueObjectIsEmpty,
+    DeletedMinion,
     DidNotRespond,
 }
 

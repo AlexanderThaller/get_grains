@@ -1,6 +1,7 @@
 Minion did_not_respond_minion did not respond. No job will be sent.
 Minion did_not_respond_minion2 did not respond. No job will be sent.
 Minion did_not_respond_minion3 did not respond. No job will be sent.
+minion deleted_minion was already deleted from tracker, probably a duplicate key
 {
   "failed_ret_empty": {
     "jid": "20170314163920706889",

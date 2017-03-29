@@ -73,14 +73,8 @@ fn run() -> Result<()> {
     trace!("matches: {:#?}", matches);
 
     match matches.clone().subcommand_name() {
-        Some("run_salt") => {
-            run_run_salt(&matches.subcommand.unwrap().matches)
-                .chain_err(|| "problem while running run_salt")
-        }
-        Some("read_file") => {
-            run_read_file(&matches.subcommand.unwrap().matches)
-                .chain_err(|| "problem while running read_file")
-        }
+        Some("run_salt") => run_run_salt(&matches.subcommand.unwrap().matches).chain_err(|| "problem while running run_salt"),
+        Some("read_file") => run_read_file(&matches.subcommand.unwrap().matches).chain_err(|| "problem while running read_file"),
         Some(command) => Err(errors::ErrorKind::DoNotKnowCommand(command.to_owned()).into()),
         None => Err(errors::ErrorKind::NoCommand.into()),
     }
@@ -104,15 +98,15 @@ fn run_run_salt(args: &Args) -> Result<()> {
     };
     debug!("save_output: {:?}", save_output);
 
-    let minions_data =
-        get_minions_data_from_salt(salt_target, 120).chain_err(|| "can not get minions data from salt")?;
+    let minions_data = get_minions_data_from_salt(salt_target, 120).chain_err(|| "can not get minions data from salt")?;
 
     if let Some(path) = save_output {
-        let mut file = File::create(path.to_str().ok_or("can not convert path path to str")?)
-            .chain_err(|| "can not create file for writing minions_data to save output")?;
+        let mut file = File::create(path.to_str().ok_or("can not convert path path to str")?).chain_err(|| "can not create file for writing minions_data to save output")?;
         file.write(minions_data.as_bytes())
             .chain_err(|| "can not write minions_data to path file")?;
+        debug!("wrote salt output to {:?}", path.to_str());
     }
+
 
     let mut minions = parse_minions_from_minions_data(&minions_data).chain_err(|| "can not parse minions from minions data")?;
 
@@ -124,9 +118,7 @@ fn run_run_salt(args: &Args) -> Result<()> {
         for retry_count in {
             1..3
         } {
-            debug!("trying again to get grains for {} (retry {})",
-                   hostid,
-                   retry_count);
+            debug!("trying again to get grains for {} (retry {})", hostid, retry_count);
             let minion_data = match get_minions_data_from_salt(hostid.as_str(), 30) {
                 Ok(m) => m,
                 Err(_) => continue,
@@ -137,6 +129,7 @@ fn run_run_salt(args: &Args) -> Result<()> {
             let new_host = minion.values().next().unwrap();
             if host.is_success() {
                 minions.insert(hostid.clone(), new_host.clone());
+                break;
             }
         }
     }
@@ -178,13 +171,8 @@ fn run_read_file(args: &Args) -> Result<()> {
     Ok(())
 }
 
-fn get_minions_data_from_salt(
-    minions: &str,
-    timeout: usize
-) -> std::result::Result<String, errors::Error> {
-    let command_string = format!("salt '{}' -t {} -b 10 --out json --static grains.items",
-                                 minions,
-                                 timeout);
+fn get_minions_data_from_salt(minions: &str, timeout: usize) -> std::result::Result<String, errors::Error> {
+    let command_string = format!("salt '{}' -t {} -b 10 --out json --static grains.items", minions, timeout);
 
     debug!("runing salt with command: {}", command_string);
 
@@ -204,53 +192,76 @@ fn get_minions_data_from_salt(
             .to_owned();
         Ok(stdout)
     } else {
-        let stderr =
-            from_utf8(output.stderr.as_slice()).chain_err(|| "can not convert stderr to utf8 str")?;
-        Err(format!("exit code of salt command is not zero: {}:\n{}",
-                    output.status,
-                    stderr)
-            .into())
+        let stderr = from_utf8(output.stderr.as_slice()).chain_err(|| "can not convert stderr to utf8 str")?;
+        Err(format!("exit code of salt command is not zero: {}:\n{}", output.status, stderr).into())
     }
 }
 
-fn parse_minions_from_minions_data
-    (minions_data: &str)
-     -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
-    let (minions_data, failed_minions) = {
-        // match all hosts that have not returned as they are not in the json data
-        // format is normally like "Minion pricesearch did not respond. No job will be
-        // sent."
-        let catch_not_returned_minions =
-            Regex::new(r"(?m)^Minion (\S*) did not respond\. No job will be sent\.$")
-                .expect("regex for catching not returned minions is not valid");
+fn parse_minions_from_minions_data(minions_data: &str) -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
+    let mut minions = DataMap::default();
 
-        let mut no_return = Vec::new();
-        for host in catch_not_returned_minions.captures_iter(minions_data) {
-            no_return.push(host[1].to_string());
-        }
+    let minions_data = {
+        let minions_data = {
+            // match all hosts that have not returned as they are not in the json data
+            // format is normally like "Minion pricesearch did not respond. No job will be
+            // sent."
+            let regex = Regex::new(r"(?m)^Minion (\S*) did not respond\. No job will be sent\.$").chain_err(|| "regex for catching not returned minions is not valid")?;
 
-        let cleaned_minions_data = catch_not_returned_minions.replace_all(minions_data, "")
-            .into_owned();
+            let mut failed = Vec::new();
+            for host in regex.captures_iter(minions_data) {
+                failed.push(host[1].to_string());
+            }
 
-        // clean up hosts that have not returned from the json data
-        (cleaned_minions_data, no_return)
+            let data = regex.replace_all(minions_data, "")
+                .into_owned();
+
+            trace!("no_return: {:#?}", failed);
+
+            for minion in failed {
+                minions.insert(minion.clone(),
+                               host::Host {
+                                   hostname: minion,
+                                   status: host::HostStatus::DidNotRespond,
+                                   ..host::Host::default()
+                               });
+            }
+
+            data
+        };
+
+        let minions_data = {
+            let regex = Regex::new(r"(?m)^minion (\S*) was already deleted from tracker, probably a duplicate key$").chain_err(|| "regex for catching deleted minions is not valid")?;
+
+            let mut failed = Vec::new();
+            for host in regex.captures_iter(minions_data.as_str()) {
+                failed.push(host[1].to_string());
+            }
+
+            let data = regex.replace_all(minions_data.as_str(), "")
+                .into_owned();
+
+            trace!("deleted_minions: {:#?}", failed);
+
+            for minion in failed {
+                minions.insert(minion.clone(),
+                               host::Host {
+                                   hostname: minion,
+                                   status: host::HostStatus::DeletedMinion,
+                                   ..host::Host::default()
+                               });
+            }
+
+            data
+        };
+
+        minions_data
     };
 
-    let value: Value =
-        serde_json::from_str(minions_data.as_str()).chain_err(|| "can not convert minions data to minions")?;
+    let value: Value = serde_json::from_str(minions_data.as_str()).chain_err(|| "can not convert minions data to minions")?;
 
-    let mut minions =
-        parse_minions_from_json(&value).chain_err(|| "can not convert json value to minions")?;
+    let mut parsed_minions = parse_minions_from_json(&value).chain_err(|| "can not convert json value to minions")?;
 
-    trace!("failed_minions: {:#?}", failed_minions);
-    for minion in failed_minions {
-        minions.insert(minion.clone(),
-                       host::Host {
-                           hostname: minion,
-                           status: host::HostStatus::DidNotRespond,
-                           ..host::Host::default()
-                       });
-    }
+    minions.append(&mut parsed_minions);
 
     trace!("minions: {:#?}", minions);
 
@@ -301,8 +312,7 @@ impl From<u64> for Retcode {
     }
 }
 
-fn parse_minions_from_json(json_value: &Value)
-    -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
+fn parse_minions_from_json(json_value: &Value) -> std::result::Result<DataMap<String, host::Host>, errors::Error> {
     let mut minions: DataMap<String, host::Host> = DataMap::default();
 
     for (hostid, values) in json_value.as_object().unwrap().iter() {
@@ -403,9 +413,7 @@ fn serialize_minions(minions: DataMap<String, host::Host>, grainsdir: &PathBuf) 
 
     for (hostid, data) in minions {
         if data.status != host::HostStatus::Success {
-            warn!("host {} did not succedd. failed with status {:?}",
-                  hostid,
-                  data.status);
+            warn!("host {} did not succedd. failed with status {:?}", hostid, data.status);
             continue;
         }
 
@@ -413,13 +421,12 @@ fn serialize_minions(minions: DataMap<String, host::Host>, grainsdir: &PathBuf) 
         let mut data_path = grainsdir.clone();
         data_path.push(format!("{}.json", hostid));
 
-        let mut file = File::create(data_path.to_str().ok_or("can not convert data_path to str")?)
-            .chain_err(|| "can not create file for writing minion data")?;
+        let mut file = File::create(data_path.to_str().ok_or("can not convert data_path to str")?).chain_err(|| "can not create file for writing minion data")?;
 
         let mut data_map = DataMap::default();
         data_map.insert(hostid, data.data);
 
-        file.write(serde_json::to_string(&data_map)
+        file.write(serde_json::to_string_pretty(&data_map)
                 .chain_err(|| "can not convert minion data to json")?
                 .as_bytes())
             .chain_err(|| "can not write json data to file")?;
