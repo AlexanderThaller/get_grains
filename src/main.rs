@@ -27,6 +27,7 @@ use std::process::Command;
 use std::str::from_utf8;
 
 mod host;
+
 mod errors {
     // Create the Error, ErrorKind, ResultExt, and Result types
     error_chain!{
@@ -411,12 +412,21 @@ fn parse_minions_from_json(json_value: &Value) -> std::result::Result<DataMap<St
 fn serialize_minions(minions: DataMap<String, host::Host>, grainsdir: &PathBuf) -> Result<()> {
     fs::create_dir_all(&grainsdir).chain_err(|| "can not create grainsdir for writing minions json")?;
 
+    let mut failed_log = {
+        let mut fail_log_path = grainsdir.clone();
+        fail_log_path.push("failed_minions.log");
+
+        File::create(fail_log_path.to_str().ok_or("can not convert fail_log_path to str")?).chain_err(|| "can not create file for writing failed_minions log")?
+    };
+
     for (hostid, data) in minions {
         if data.status != host::HostStatus::Success {
-            warn!("host {} did not succedd. failed with status {:?}", hostid, data.status);
+            let message = format!("host {} did not succedd. failed with status {:?}", hostid, data.status);
+            warn!("{}", message);
+            failed_log.write(format!("{}\n", message).as_bytes()).chain_err(|| "can not write message to failed_log file")?;
+
             continue;
         }
-
 
         let mut data_path = grainsdir.clone();
         data_path.push(format!("{}.json", hostid));
