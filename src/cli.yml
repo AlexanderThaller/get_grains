@@ -37,12 +37,30 @@ subcommands:
             value_name: "target"
             default_value: "*"
             required: true
-        - save_output:
-            help: "Save output to the given file"
-            long: "save_output"
+        - compound_target:
+            help: "Use compound targeting"
+            long: "compound_target"
+            short: "C"
+        - save_folder:
+            help: "Save output to the given folder"
+            long: "save_folder"
             short: "S"
             takes_value: true
-            value_name: "file"
+            value_name: "path"
+        - timeout:
+            help: "Timout for salt minions"
+            long: "timeout"
+            short: "T"
+            takes_value: true
+            value_name: "seconds"
+            default_value: "120"
+        - batchsize:
+            help: "Number of minions to query at the same time"
+            long: "batchsize"
+            short: "b"
+            takes_value: true
+            value_name: "amount"
+            default_value: "5"
   - read_file:
       about: read salt grains from a file
       args:

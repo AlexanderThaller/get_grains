@@ -1,0 +1,198 @@
+#!/usr/local/bin/bash
+
+
+################################################################################
+### Runtime Options                                                          ###
+################################################################################
+
+PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/root/bin"
+
+set -o errexit   # Stop on command failures.
+set -o nounset   # Stop when there are undefined variables.
+set -o pipefail  # Stop when a command in a pipe failes.
+set -o noclobber # Dont overwrite existing files with '>'.
+
+
+################################################################################
+###         Options                                                          ###
+################################################################################
+
+readonly GrainsFolder="/appdata/salt_grains/grains"
+readonly TimeOut="60"
+readonly TrapFile="/tmp/.trap_file-get_grains"
+
+
+################################################################################
+### Functions                                                                ###
+################################################################################
+
+get_grains-sync_repo() {
+  local folder="${1:-}"
+  check_empty_variable_exit "folder" "${folder}"
+
+  if [[ ! -d "${folder}/.git" ]]; then
+    log_debug "${folder} is not a git repository"
+    return
+  fi
+
+  if [[ ! -x "${folder}/git-sync" ]]; then
+    log_warn "${folder} doesnt have an executable git-sync"
+    return
+  fi
+
+  original_folder="$(pwd)"
+  cd "${folder}"
+  set +o errexit
+  ./git-sync
+  set -o errexit
+  cd "${original_folder}"
+}
+
+get_grains-add_commit_changes() {
+  local folder="${1:-}"
+  local timestamp="${2:-}"
+  check_empty_variable_exit "folder" "${folder}"
+  check_empty_variable_exit "timestamp" "${timestamp}"
+
+  if [[ ! -d "${folder}/.git" ]]; then
+    log_debug "${folder} is not a git repository"
+    return
+  fi
+
+  original_folder="$(pwd)"
+  cd "${folder}"
+  git add .
+  git commit -m "Added grains for run ${timestamp}"
+  cd "${original_folder}"
+}
+
+get_grains-main() {
+  get_grains-sync_repo "${GrainsFolder}"
+
+  local timestamp
+  timestamp="$(date +%s)"
+
+  local savedir
+  savedir="/appdata/salt_grains/save_files/${timestamp}"
+  mkdir -p "${savedir}"
+
+  local target="${1:-"*"}"
+
+  get_grains \
+    -D "${GrainsFolder}" \
+    -l debug run_salt \
+    --target "${target}" \
+    -S "${savedir}/save.json" 2>&1 | tee "${savedir}/output.log"
+
+  get_grains-add_commit_changes "${GrainsFolder}" "${timestamp}"
+
+  get_grains-sync_repo "${GrainsFolder}"
+}
+
+
+################################################################################
+### Helper Functions                                                         ###
+################################################################################
+
+log() {
+  local message="${1:-}"
+  local level="${2:-"info"}"
+
+  if [[ -z "${message}" ]]; then
+    level="error"
+    message="message for log can not be empty"
+  fi
+
+  # Only print colors when we are in a terminal
+  if [ -t 1 ]; then
+    case "${level}" in
+      "error")
+        level="\e[31m${level}\e[39m"
+      ;;
+      "warn")
+        level="\e[33m${level}\e[39m"
+      ;;
+      "info")
+        level="\e[34m${level}\e[39m"
+      ;;
+      *)
+      ;;
+    esac
+  fi
+
+  local timestamp
+  timestamp="$(date -u +%FT%H:%M:%S%z)"
+
+  local hostname
+  hostname="$(hostname)"
+
+  if [[ "${level}" == "debug" ]]; then
+    echo -e "${level}[${timestamp}, ${hostname}] ${message}" > /dev/null
+  else
+    echo -e "${level}[${timestamp}, ${hostname}] ${message}" >&2
+  fi
+}
+
+log_debug() {
+  local message="${1:-}"
+  log "${message}" "debug"
+}
+
+log_info() {
+  local message="${1:-}"
+  log "${message}" "info"
+}
+
+log_warn() {
+  local message="${1:-}"
+  log "${message}" "warn"
+}
+
+log_error() {
+  local message="${1:-}"
+  log "${message}" "error"
+}
+
+check_empty_variable_exit() {
+  local variable="${1:-}"
+  local variable_name="${2:-}"
+
+  check_empty_exit "${variable_name} can not be empty"
+}
+
+check_empty_exit() {
+  local variable="${1:-}"
+  local message="${2:-}"
+
+  if [[ -z "${variable}" ]]; then
+    if [[ ! -z "${message}" ]]; then
+      log_error "${message}"
+    fi
+
+    exit 1
+  fi
+}
+
+trap_signal_exit() {
+  if [[ ! -e "${TrapFile}" ]]; then
+    log_error "Execution failed"
+  fi
+
+  rm -f "${TrapFile}"
+}
+
+
+################################################################################
+### Entry Point                                                              ###
+################################################################################
+
+# Make xtrace more usefull
+# see http://wiki.bash-hackers.org/scripting/debuggingtips
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+# Set trap which will be run when the execution failes
+trap 'trap_signal_exit' EXIT
+
+log_info "Starting"
+get_grains-main "$@"
+touch "${TrapFile}"
+log_info "Finished"

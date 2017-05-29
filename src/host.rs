@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Host {
     pub hostname: String,
     pub data: Option<Value>,
@@ -13,7 +13,7 @@ impl Host {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum HostStatus {
     Uninitialized,
     Success,
