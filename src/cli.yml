@@ -3,9 +3,7 @@ author: "Alexander Thaller <alexander.thaller@trivago.com>"
 about: "Get the grains for all the minions connected to the saltmaster and save them in JSON files"
 global_settings:
   - "ColoredHelp"
-  - "GlobalVersion"
   - "NextLineHelp"
-  - "VersionlessSubcommands"
 settings:
   - "SubcommandRequired"
 args:
