@@ -379,7 +379,7 @@ impl Retcode {
 
 #[cfg(test)]
 mod test_retcode {
-    use Retcode;
+    use super::Retcode;
 
     #[test]
     fn from_success() {
